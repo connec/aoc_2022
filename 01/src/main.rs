@@ -18,15 +18,19 @@ fn main() -> Result<()> {
         File::open(CALORIES_PATH).wrap_err_with(|| format!("couldn't open `{}`", CALORIES_PATH))?;
     let reader = BufReader::new(file);
 
-    let calories =
+    let mut calories =
         count_calories(reader).wrap_err_with(|| format!("error reading `{}`", CALORIES_PATH))?;
 
-    let Some(most_calories) = calories.peek() else {
+    let Some(most_calories) = calories.pop() else {
         bail!("No calories in `{}`", CALORIES_PATH);
     };
 
     eprintln!("Most calories");
     println!("{}", most_calories);
+
+    let next_top_2_calories: u32 = std::iter::from_fn(|| calories.pop()).take(2).sum();
+    eprintln!("Combined top-3 calories");
+    println!("{}", most_calories + next_top_2_calories);
 
     Ok(())
 }
